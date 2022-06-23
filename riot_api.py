@@ -3,6 +3,8 @@ import requests
 from game_info import GameInfo, PlayerInfo
 
 class RiotAPI:
+    queueTypes = {400: "Draft", 420: "Solo/Duo", 430: "Blind", 440: "Flex", 450: "ARAM", 700: "Clash"}
+
     def __init__(self, api_key):
         self.api_key = api_key
         self.base_url = 'https://eun1.api.riotgames.com/lol/'
@@ -52,6 +54,10 @@ class RiotAPI:
             return None
         start_time = raw_data["info"]["gameStartTimestamp"]
         game_duration = raw_data["info"]["gameDuration"]
+        queueId = raw_data["info"]["queueId"]
+        queue_type = "Other"
+        if queueId in self.queueTypes:
+            queue_type = self.queueTypes[queueId]
         winner = "Blue"
         participants = []
         for participant in raw_data["info"]["participants"]:
@@ -75,7 +81,7 @@ class RiotAPI:
             position = participant["individualPosition"]
             player_info = PlayerInfo(id, summoner_name, kills, deaths, assists, champion_name, champion_id, gold_earned, damage, creep_score, vision_score, team, multikills, position)
             participants.append(player_info)
-        game_info = GameInfo(id, start_time, game_duration, winner, participants)
+        game_info = GameInfo(id, start_time, game_duration, winner, participants, queue_type)
         return game_info
         
     def get_recent_matches_infos(self, username, count=20):

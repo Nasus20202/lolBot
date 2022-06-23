@@ -1,12 +1,13 @@
 # blue - 0, (false), red - 1 (true)
 
 class GameInfo:
-    def __init__(self, id, start_time, duration, winner, participants):
+    def __init__(self, id, start_time, duration, winner, participants, queue_type):
         self.id = id
         self.start_time = start_time
         self.duration = duration
         self.winner = winner
         self.participants = participants
+        self.queue_type = queue_type
 
 
 class PlayerInfo:
