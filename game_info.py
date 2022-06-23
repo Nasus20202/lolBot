@@ -10,9 +10,9 @@ class GameInfo:
 
 
 class PlayerInfo:
-    def __init__(self, id, name, kills, deaths, assists, champion_name, champion_id, gold, damage, creep_score, vision_score, team, multikills, position):
+    def __init__(self, id, summoner_name, kills, deaths, assists, champion_name, champion_id, gold, damage, creep_score, vision_score, team, multikills, position):
         self.id = id
-        self.name = name
+        self.summoner_name = summoner_name
         self.kills = kills
         self.deaths = deaths
         self.assists = assists
@@ -25,3 +25,8 @@ class PlayerInfo:
         self.team = team
         self.multikills = multikills
         self.position = position
+
+    def kda(self):
+        if self.deaths == 0:
+            return "Perfect"
+        return str(round((self.kills + self.assists)/self.deaths, 2))
