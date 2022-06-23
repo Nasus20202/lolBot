@@ -1,6 +1,5 @@
-from itertools import count
-from pydoc import cli
 import requests
+from game_info import GameInfo, PlayerInfo
 
 class RiotAPI:
     def __init__(self, api_key):
@@ -27,3 +26,27 @@ class RiotAPI:
         if response.status_code == 200:
             return data
         return []
+
+    def get_match_info_by_id(self, match_id):
+        url = f"{self.base_url_universal}match/v5/matches/{match_id}"
+        params = {'api_key': self.api_key}
+        response = requests.get(url, params=params)
+        data = response.json()
+        if (response.status_code == 200):
+            data["status_code"] = response.status_code
+            data["message"] = "Match found"
+            return data
+        return data["status"]
+
+    def get_recent_matches_ids(self, username, count=20):
+        summoner_data = self.get_summoner_by_name(username)
+        if(summoner_data["status_code"] != 200):
+            return []
+        summoner_puuid = summoner_data["puuid"]
+        return self.get_matches_ids_by_puuid(summoner_puuid, count=count)
+
+    def get_latest_match_id(self, username):
+        matches = self.get_recent_matches(username, 1)
+        if(len(matches) > 0):
+            return matches[0]
+        return ''

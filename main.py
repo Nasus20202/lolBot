@@ -2,6 +2,7 @@ import discord
 from dotenv import load_dotenv
 import os
 from discord.ext import commands
+from game_info import GameInfo, PlayerInfo
 import riot_api
 
 def main():
@@ -18,11 +19,6 @@ def main():
     @bot.event
     async def on_ready():
         print(f'Logged in as {bot.user} (ID: {bot.user.id})')
-
-    @bot.command()
-    async def ping(ctx, *, arg):
-        print(ctx.author.name)
-        await ctx.send(f'Pong! {arg}')
 
     @bot.command()
     async def summoner(ctx, *, arg):
