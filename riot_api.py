@@ -1,8 +1,10 @@
+import queue
 import aiohttp
-from game_info import GameInfo, PlayerInfo
+from game_info import GameInfo, PlayerInfo, UserInfo
 
 class RiotAPI:
     queueTypes = {400: "Draft", 420: "Solo/Duo", 430: "Blind", 440: "Flex", 450: "ARAM", 700: "Clash"}
+    queueWeight = {"UNRANKED": -1, "IRON": 0, "BRONZE": 1, "SILVER": 2, "GOLD": 3, "PLATINUM": 4, "DIAMOND": 5, "MASTER": 6, "GRANDMASTER": 7, "CHALLENGER": 8}
 
     def __init__(self, api_key, server="eun1", region="europe"):
         self.api_key = api_key
@@ -19,9 +21,7 @@ class RiotAPI:
                     data["status_code"] = response.status
                     data["message"] = "Summoner found"
                     return data
-                return data["status"]
-
-
+                return data["status"]          
     
     async def get_matches_ids_by_puuid(self, puuid, count=20, start=0):
         url = f"{self.base_url_universal}match/v5/matches/by-puuid/{puuid}/ids"
@@ -102,3 +102,80 @@ class RiotAPI:
             return await self.get_match_info_by_id(match_ids[id])
         return None
 
+    async def get_ranked_info(self, user_id):
+        url = f"{self.base_url}league/v4/entries/by-summoner/{user_id}"
+        params = {'api_key': self.api_key}
+        ranks = []
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, params=params) as response:
+                data = await response.json()
+                for rankData in data:
+                    queue = rankData["queueType"]
+                    tier = rankData["tier"]
+                    rank = rankData["rank"]
+                    lp = rankData["leaguePoints"]
+                    wins = rankData["wins"]
+                    losses = rankData["losses"]
+                    rankArray = [queue, tier, rank, lp, wins, losses]
+                    ranks.append(rankArray)
+        return ranks
+
+    async def get_mastery_info(self, user_id):
+        url = f"{self.base_url}champion-mastery/v4/champion-masteries/by-summoner/{user_id}"
+        params = {'api_key': self.api_key}
+        champions = []
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, params=params) as response:
+                data = await response.json()
+                for champion in data:
+                    id = champion["championId"]
+                    level = champion["championLevel"]
+                    points = champion["championPoints"]
+                    last_play = champion["lastPlayTime"]
+                    chest = champion["chestGranted"]
+                    champions.append([id, level, points, last_play, chest])
+        return champions
+
+
+
+    async def get_profile_info(self, username):
+        summoner = await self.get_summoner_by_name(username)
+        if(summoner["status_code"] != 200):
+            return {"status_code": 404, "message": "Summoner not found"}
+        id = summoner["id"]
+        summoner_name = summoner["name"]
+        level = summoner["summonerLevel"]
+        icon = summoner["profileIconId"]
+        ranks = await self.get_ranked_info(id)
+        rank_solo = "UNRANKED"
+        rank_flex = "UNRANKED"
+        lp_solo = 0
+        lp_flex = 0
+        wins_solo = 0
+        losses_solo = 0
+        wins_flex = 0
+        losses_flex = 0
+        max_division = "UNRANKED"
+        for rank in ranks:
+            if(rank[0] == "RANKED_SOLO_5x5"):
+                rank_solo = f"{rank[1]} {rank[2]}"
+                lp_solo = rank[3]
+                wins_solo = rank[4]
+                losses_solo = rank[5]
+            elif(rank[0] == "RANKED_FLEX_SR"):
+                rank_flex = f"{rank[1]} {rank[2]}"
+                lp_flex = rank[3]
+                wins_flex = rank[4]
+                losses_flex = rank[5]
+            if(self.queueWeight[max_division.upper()] < self.queueWeight[rank[1].upper()]):
+                max_division = rank[1].upper()
+            
+        champions = await self.get_mastery_info(id)
+        top_champs = champions[:3]
+        total_mastery = 0
+        total_points = 0
+        for champion in champions:
+            total_mastery += champion[1]
+            total_points += champion[2]
+        user = UserInfo(id, summoner_name, level, icon, rank_solo, rank_flex, lp_solo, lp_flex, wins_solo, losses_solo, wins_flex, losses_flex,max_division, top_champs, total_points, total_mastery)
+        return {"status_code": 200, "user": user}
