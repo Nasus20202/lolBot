@@ -6,3 +6,9 @@ List of commands:
 !match {player} {1-100} - Your game, if no ID given - last (!m, !last, !l)
 !history {player} {1-20} - Check your game history (!matches, !h)
 ```
+
+.env file:
+```
+DISCORD_TOKEN=YOUR_DICORD_TOKEN
+RIOT_TOKEN=YOUR_RIOT_TOKEN
+```
