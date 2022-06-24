@@ -1,4 +1,3 @@
-# blue - 0, (false), red - 1 (true)
 
 class GameInfo:
     def __init__(self, id, start_time, duration, winner, participants, queue_type):
