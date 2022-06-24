@@ -1,4 +1,3 @@
-from tokenize import Number
 import discord
 from dotenv import load_dotenv
 import os
@@ -26,23 +25,23 @@ def main():
 
     @bot.command()
     async def level(ctx, *, arg):
-        summoner = riot_client.get_summoner_by_name(arg)
+        summoner = await riot_client.get_summoner_by_name(arg)
         if(summoner["status_code"] == 200):
             await ctx.send(f'{summoner["name"]} is level {summoner["summonerLevel"]}')
         else:
-            await ctx.send(f'{summoner["message"]}')
+            await ctx.send(f'Summoner {arg} doesn\'t exsit!')
 
     @bot.command()
     async def last(ctx, *, arg):
-        summoner = riot_client.get_summoner_by_name(arg)
+        summoner = await riot_client.get_summoner_by_name(arg)
         if(summoner["status_code"] != 200):
             await ctx.send(f"Summoner {arg} doesn't exist!")
             return
-        match_info = riot_client.get_recent_match_info(summoner["name"])
+        match_info = await riot_client.get_recent_match_info(summoner["name"])
         if(match_info == None):
             await ctx.send(f"Match not found!")
             return
-        embed = generate_embed(match_info, summoner["name"])
+        embed = generate_match_embed(match_info, summoner["name"])
         await ctx.send(embed=embed)
 
     @bot.command()
@@ -59,30 +58,21 @@ def main():
             summoner_name += i
         if(not isNumber):
             summoner_name = arg
-        summoner = riot_client.get_summoner_by_name(summoner_name)
+        summoner = await riot_client.get_summoner_by_name(summoner_name)
         if(summoner["status_code"] != 200):
             await ctx.send(f"Summoner {arg} doesn't exist!")
             return
         if(int(id) > 100 or int(id) < 1):
             await ctx.send(f"You can only see your last 100 matches!")
             return
-        match_info = riot_client.get_recent_match_info(summoner["name"], int(id)-1)
+        match_info = await riot_client.get_recent_match_info(summoner["name"], int(id)-1)
         if(match_info == None):
             await ctx.send(f"Match not found!")
             return
-        embed = generate_embed(match_info, summoner["name"])
+        embed = generate_match_embed(match_info, summoner["name"])
         await ctx.send(embed=embed)
 
-    def repair_champ_name(champ_name):
-        new_champ_name = ""
-        for i in champ_name:
-            if i <= 'Z' and new_champ_name != "":
-                new_champ_name += " " + i
-            else:
-                new_champ_name += i
-        return new_champ_name
-
-    def generate_embed(game_info, username):
+    def generate_match_embed(game_info, username):
         blue_kills = 0
         red_kills = 0
         winner = False
@@ -110,8 +100,15 @@ def main():
                 
         embed.timestamp = datetime.fromtimestamp(int(game_info.start_time/1000)-2*3600)
         return embed
-        
-
+    
+    def repair_champ_name(champ_name):
+        new_champ_name = ""
+        for i in champ_name:
+            if i <= 'Z' and new_champ_name != "":
+                new_champ_name += " " + i
+            else:
+                new_champ_name += i
+        return new_champ_name
 
     bot.run(os.environ.get('DISCORD_TOKEN'))
 
