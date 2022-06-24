@@ -30,7 +30,7 @@ def main():
         else:
             await ctx.send(f'Summoner {arg} doesn\'t exsit!')
 
-    @bot.command(aliases=['last'])
+    @bot.command(aliases=['last', 'm', 'l'])
     async def match(ctx, *, arg):
         id = arg.split(" ")[-1]
         isNumber = True
@@ -58,7 +58,7 @@ def main():
         embed = await embed_generator.generate_match_embed(match_info, summoner["name"])
         await ctx.send(embed=embed)
 
-    @bot.command()
+    @bot.command(aliases=['player', 'rank', 'user', 'p', 'r', 'u'])
     async def profile(ctx, *, arg):
         data = await riot_client.get_profile_info(arg)
         if(data["status_code"] != 200):

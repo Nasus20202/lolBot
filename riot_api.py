@@ -156,7 +156,6 @@ class RiotAPI:
         wins_flex = 0
         losses_flex = 0
         max_division = "UNRANKED"
-        # rankArray = [queue, tier, rank, lp, wins, losses]
         for rank in ranks:
             if(rank[0] == "RANKED_SOLO_5x5"):
                 rank_solo = f"{rank[1]} {rank[2]}"

@@ -65,6 +65,8 @@ async def generate_user_embed(user_info):
     embed = discord.Embed(title=f"{user_info.summoner_name}", description=f"{user_info}", color=0x53a8e8)
     embed.set_author(name=user_info.summoner_name, icon_url=f"https://ddragon.leagueoflegends.com/cdn/12.12.1/img/profileicon/{user_info.icon}.png")
     embed.set_thumbnail(url=rank_assets[user_info.max_division.upper()])
+    embed.add_field(name=f"Solo/Duo - {user_info.rank_solo}", value=f"{str(user_info.lp_solo) + ' LP, ' if user_info.rank_solo != 'UNRANKED' else ''}{user_info.wins_solo + user_info.losses_solo} games{f', {round(user_info.wins_solo/(user_info.losses_solo + user_info.wins_solo) * 100, 2)} % WR' if (user_info.losses_solo + user_info.wins_solo) > 0 else ''}")
+    embed.add_field(name=f"Flex - {user_info.rank_flex}", value=f"{str(user_info.lp_flex) + ' LP, ' if user_info.rank_flex != 'UNRANKED' else ''}{user_info.wins_flex + user_info.losses_flex} games{f', {round(user_info.wins_flex/(user_info.losses_flex + user_info.wins_flex) * 100, 2)} % WR' if (user_info.losses_flex + user_info.wins_flex) > 0 else ''}")
     return embed
     
     
