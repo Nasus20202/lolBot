@@ -1,5 +1,4 @@
 import aiohttp
-import requests
 from game_info import GameInfo, PlayerInfo
 
 class RiotAPI:
@@ -13,33 +12,38 @@ class RiotAPI:
     async def get_summoner_by_name(self, summoner_name):
         url = f"{self.base_url}summoner/v4/summoners/by-name/{summoner_name}"
         params = {'api_key': self.api_key}
-        response = requests.get(url, params=params)
-        data = response.json()
-        if response.status_code == 200:
-            data["status_code"] = response.status_code
-            data["message"] = "Summoner found"
-            return data
-        return data["status"]
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, params=params) as response:
+                data = await response.json()
+                if response.status == 200:
+                    data["status_code"] = response.status
+                    data["message"] = "Summoner found"
+                    return data
+                return data["status"]
+
+
     
     async def get_matches_ids_by_puuid(self, puuid, count=20, start=0):
         url = f"{self.base_url_universal}match/v5/matches/by-puuid/{puuid}/ids"
         params = {'api_key': self.api_key, 'count': count, 'start': start}
-        response = requests.get(url, params=params)
-        data = response.json()
-        if response.status_code == 200:
-            return data
-        return []
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, params=params) as response:
+                data = await response.json()
+                if response.status == 200:
+                    return data
+                return []
 
     async def get_raw_match_info_by_id(self, match_id):
         url = f"{self.base_url_universal}match/v5/matches/{match_id}"
         params = {'api_key': self.api_key}
-        response = requests.get(url, params=params)
-        data = response.json()
-        if (response.status_code == 200):
-            data["status_code"] = response.status_code
-            data["message"] = "Match found"
-            return data
-        return data["status"]
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, params=params) as response:
+                data = await response.json()
+                if (response.status == 200):
+                    data["status_code"] = response.status
+                    data["message"] = "Match found"
+                    return data
+                return data["status"]
 
     async def get_recent_matches_ids(self, username, count=20):
         summoner_data = await self.get_summoner_by_name(username)
@@ -70,7 +74,7 @@ class RiotAPI:
             champion_id = participant["championId"]
             gold_earned = participant["goldEarned"]
             damage = participant["totalDamageDealtToChampions"]
-            creep_score = participant["totalMinionsKilled"]
+            creep_score = participant["totalMinionsKilled"] + participant["neutralMinionsKilled"]
             vision_score = participant["visionScore"]
             team = "Red"
             if (participant["teamId"] == 100):
