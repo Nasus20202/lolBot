@@ -1,6 +1,7 @@
 import discord
 from datetime import datetime
 import requests
+import random
 
 # big brain file hosting :)
 rank_assets = {
@@ -68,7 +69,7 @@ async def generate_match_embed(game_info, username):
         return embed
 
 async def generate_user_embed(user_info):
-    embed = discord.Embed(title=f"{user_info.level} level", description=f"", color=0x53a8e8)
+    embed = discord.Embed(title=f"{user_info.level} level", description=f"", color=random.randint(0, 16777215))
     embed.set_author(name=user_info.summoner_name, icon_url=f"https://ddragon.leagueoflegends.com/cdn/12.12.1/img/profileicon/{user_info.icon}.png")
     embed.set_thumbnail(url=rank_assets[user_info.max_division.upper()])
     embed.add_field(name=f"Solo/Duo - {user_info.rank_solo}", value=f"{str(user_info.lp_solo) + ' LP, ' if user_info.rank_solo != 'UNRANKED' else ''}{user_info.wins_solo + user_info.losses_solo} games{f', {round(user_info.wins_solo/(user_info.losses_solo + user_info.wins_solo) * 100, 2)}% WR' if (user_info.losses_solo + user_info.wins_solo) > 0 else ''}")
@@ -79,7 +80,20 @@ async def generate_user_embed(user_info):
     
     return embed
     
-    
+async def generate_history_embed(match_history):
+    embed = discord.Embed(title=f"Last {len(match_history[0])} Games", description=f"", color=random.randint(0, 16777215))
+    embed.set_author(name=f"{match_history[1]['name']} ({match_history[1]['summonerLevel']} lvl)", icon_url=f"https://ddragon.leagueoflegends.com/cdn/12.12.1/img/profileicon/{match_history[1]['profileIconId']}.png")
+    for i in range(len(match_history[0])):
+        match = match_history[0][i]
+        for participant in match.participants:
+            if(participant.id == match_history[1]["id"]):
+                m, s = divmod(match.duration, 60)
+                if match.duration < 300:
+                    embed.add_field(name=f":white_circle: {i+1} - {match.queue_type} - {participant.champion_name} {participant.kills}/{participant.deaths}/{participant.assists} - {m:02d}:{s:02d}", value=f"KDA: **{participant.kda()}**, CS: **{participant.creep_score}** ({round(float(participant.creep_score)/(float(match.duration)/60.0), 2)}), DMG: **{participant.damage}**, GOLD: **{participant.gold}**", inline=False)
+                else:
+                    embed.add_field(name=f"{':blue_circle:' if match.winner == participant.team else ':red_circle:'} {i+1} - {match.queue_type} - {participant.champion_name} {participant.kills}/{participant.deaths}/{participant.assists} - {m:02d}:{s:02d}", value=f"KDA: **{participant.kda()}**, CS: **{participant.creep_score}** ({round(float(participant.creep_score)/(float(match.duration)/60.0), 2)}), DMG: **{participant.damage}**, GOLD: **{participant.gold}**", inline=False)
+    return embed
+
 async def repair_champ_name(champ_name):
     new_champ_name = ""
     for i in champ_name:
