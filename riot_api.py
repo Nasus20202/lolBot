@@ -1,4 +1,3 @@
-import queue
 import aiohttp
 from game_info import GameInfo, PlayerInfo, UserInfo
 
@@ -48,9 +47,9 @@ class RiotAPI:
     async def get_recent_matches_ids(self, username, count=20):
         summoner_data = await self.get_summoner_by_name(username)
         if(summoner_data["status_code"] != 200):
-            return []
+            return [[], summoner_data]
         summoner_puuid = summoner_data["puuid"]
-        return await self.get_matches_ids_by_puuid(summoner_puuid, count=count)
+        return [await self.get_matches_ids_by_puuid(summoner_puuid, count=count), summoner_data]
 
     async def get_match_info_by_id(self, match_id):
         raw_data = await self.get_raw_match_info_by_id(match_id)
@@ -90,16 +89,17 @@ class RiotAPI:
         
     async def get_recent_matches_infos(self, username, count=20):
         matches_infos = []
-        for match_id in await self.get_recent_matches_ids(username, count):
+        data = await self.get_recent_matches_ids(username, count)
+        for match_id in data[0]:
             match_info = await self.get_match_info_by_id(match_id)
             if(match_info is not None):
                 matches_infos.append(match_info)
-        return matches_infos
+        return [matches_infos, data[1]]
 
     async def get_recent_match_info(self, username, id=0):
-        match_ids = await self.get_recent_matches_ids(username, id+1)
-        if(len(match_ids) > id):
-            return await self.get_match_info_by_id(match_ids[id])
+        match_data = await self.get_recent_matches_ids(username, id+1)
+        if(len(match_data[0]) > id):
+            return await self.get_match_info_by_id(match_data[0][id])
         return None
 
     async def get_ranked_info(self, user_id):

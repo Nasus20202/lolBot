@@ -68,6 +68,27 @@ def main():
         embed = await embed_generator.generate_user_embed(user)
         await ctx.send(embed=embed)
 
+    @bot.command(aliases=['matches', 'h'])
+    async def history(ctx, *, arg):
+        count = arg.split(" ")[-1]
+        isNumber = True
+        for c in count:
+            if(c < "0" or c > "9"):
+                isNumber = False
+        if(not isNumber or int(count) <= 0 or int(count) > 20):
+            count = 5
+            summoner_name = arg
+        else:
+            summoner_name = ""
+            for i in arg.split(" ")[:-1]:
+                summoner_name += i
+        data = await riot_client.get_recent_matches_infos(summoner_name, int(count))
+        if (len(data[0]) <= 0):
+            await ctx.send(f"Summoner {arg} doesn't exist, you can only see your last 20 games")
+            return
+        embed = await embed_generator.generate_history_embed(data)
+        await ctx.send(embed=embed)
+
     bot.run(os.environ.get('DISCORD_TOKEN'))
 
 if __name__ == "__main__":
