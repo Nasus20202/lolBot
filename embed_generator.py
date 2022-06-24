@@ -1,6 +1,19 @@
 import discord
 from datetime import datetime
 
+# big brain file hosting :)
+rank_assets = {
+    "IRON": "https://cdn.discordapp.com/attachments/989905618494181386/989905732445036614/iron.png?size=4096",
+    "BRONZE": "https://cdn.discordapp.com/attachments/989905618494181386/989905730805047356/bronze.png?size=4096",
+    "SILVER": "https://cdn.discordapp.com/attachments/989905618494181386/989905733128687626/silver.png?size=4096",
+    "GOLD": "https://cdn.discordapp.com/attachments/989905618494181386/989905731933311027/gold.png?size=4096",
+    "PLATINUM": "https://cdn.discordapp.com/attachments/989905618494181386/989905732856053851/platinum.png?size=4096",
+    "DIAMOND": "https://cdn.discordapp.com/attachments/989905618494181386/989905731463577600/diamond.png?size=4096",
+    "MASTER": "https://cdn.discordapp.com/attachments/989905618494181386/989905732654739516/master.png?size=4096",
+    "GRANDMASTER": "https://cdn.discordapp.com/attachments/989905618494181386/989905732176592956/grandmaster.png?size=4096",
+    "CHALLANGER": "https://cdn.discordapp.com/attachments/989905618494181386/989905731186749470/challenger.png?size=4096" 
+}
+
 async def generate_match_embed(game_info, username):
         multikill_names=["Doublekill", "Triplekill", "Quadrakill", "Pentakill"]
         blue_kills = 0
@@ -20,8 +33,12 @@ async def generate_match_embed(game_info, username):
                     max_multikill = max(i, max_multikill)
         m, s = divmod(game_info.duration, 60)
         status = "VICTORY" if winner else "DEFEAT"
-        embed = discord.Embed(title=f"{status} - {game_info.winner.upper()} TEAM WINS", description=f"Type: **{game_info.queue_type}**, Score: **{blue_kills} - {red_kills}**, Time: **{m:02d}:{s:02d}**", color=0x53a8e8 if winner else 0xda2d43)
+        if game_info.duration < 300:
+            embed = discord.Embed(title=f"REMAKE", description=f"Type: **{game_info.queue_type}**, Score: **{blue_kills} - {red_kills}**, Time: **{m:02d}:{s:02d}**", color=0xafaeae)
+        else:
+            embed = discord.Embed(title=f"{status} - {game_info.winner.upper()} TEAM WINS", description=f"Type: **{game_info.queue_type}**, Score: **{blue_kills} - {red_kills}**, Time: **{m:02d}:{s:02d}**", color=0x53a8e8 if winner else 0xda2d43)
         x = 0
+        #top_damage = 0
         embed.add_field(name=f":blue_circle: Blue Team", value=f"Total Kills: **{blue_kills}**", inline=False)
         for player in game_info.participants:
             last_char = ""
@@ -38,6 +55,16 @@ async def generate_match_embed(game_info, username):
                 
         embed.timestamp = datetime.fromtimestamp(int(game_info.start_time/1000)-2*3600)
         return embed
+
+async def generate_user_embed(user_info):
+    embed = discord.Embed(title=f"{user_info.summoner_name}", description=f"{user_info}", color=0x53a8e8)
+    #embed.set_image(url=f"https://ddragon.leagueoflegends.com/cdn/12.12.1/img/profileicon/{user_info.icon}.png")
+    embed.set_author(name=user_info.summoner_name, icon_url=f"https://ddragon.leagueoflegends.com/cdn/12.12.1/img/profileicon/{user_info.icon}.png")
+    if(user_info.max_division != "UNRANKED"):
+        embed.set_thumbnail(url=rank_assets[user_info.max_division.upper()])
+    print(user_info.max_division)
+    return embed
+    
     
 async def repair_champ_name(champ_name):
     new_champ_name = ""

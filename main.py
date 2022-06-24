@@ -30,20 +30,7 @@ def main():
         else:
             await ctx.send(f'Summoner {arg} doesn\'t exsit!')
 
-    @bot.command()
-    async def last(ctx, *, arg):
-        summoner = await riot_client.get_summoner_by_name(arg)
-        if(summoner["status_code"] != 200):
-            await ctx.send(f"Summoner {arg} doesn't exist!")
-            return
-        match_info = await riot_client.get_recent_match_info(summoner["name"])
-        if(match_info == None):
-            await ctx.send(f"Match not found!")
-            return
-        embed = await embed_generator.generate_match_embed(match_info, summoner["name"])
-        await ctx.send(embed=embed)
-
-    @bot.command()
+    @bot.command(aliases=['last'])
     async def match(ctx, *, arg):
         id = arg.split(" ")[-1]
         isNumber = True
@@ -71,7 +58,15 @@ def main():
         embed = await embed_generator.generate_match_embed(match_info, summoner["name"])
         await ctx.send(embed=embed)
 
-
+    @bot.command()
+    async def profile(ctx, *, arg):
+        data = await riot_client.get_profile_info(arg)
+        if(data["status_code"] != 200):
+            await ctx.send(f"Summoner {arg} doesn't exist!")
+            return
+        user = data["user"]
+        embed = await embed_generator.generate_user_embed(user)
+        await ctx.send(embed=embed)
 
     bot.run(os.environ.get('DISCORD_TOKEN'))
 
