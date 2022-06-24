@@ -2,7 +2,7 @@ import discord
 from datetime import datetime
 
 async def generate_match_embed(game_info, username):
-        multikill_names=["Doublekill x", "Tripplekill x", "Quadrakill x", "Pentakill x"]
+        multikill_names=["Doublekill x", "Triplekill x", "Quadrakill x", "Pentakill x"]
         blue_kills = 0
         red_kills = 0
         max_multikill = 0
@@ -30,8 +30,8 @@ async def generate_match_embed(game_info, username):
             multikill = ""
             count = player.multikills[max_multikill]
             if(count > 0):
-                multikill = f"{multikill_names[max_multikill]}{count}"
-            embed.add_field(name=f"{player.summoner_name} - {await repair_champ_name(player.champion_name)} {player.kills}/{player.deaths}/{player.assists} {last_char} {multikill}", value=f"KDA: **{player.kda()}**, CS: **{player.creep_score}** ({round(float(player.creep_score)/(float(game_info.duration)/60.0), 2)} cs/min), GOLD: **{player.gold}**", inline=False)
+                multikill = f"{multikill_names[max_multikill]}{count} {':exclamation:' if max_multikill >= 2 else ''}"
+            embed.add_field(name=f"{player.summoner_name} - {await repair_champ_name(player.champion_name)} {player.kills}/{player.deaths}/{player.assists} {last_char} {multikill}", value=f"KDA: **{player.kda()}**, CS: **{player.creep_score}** ({round(float(player.creep_score)/(float(game_info.duration)/60.0), 2)}), DMG: **{player.damage}**, GOLD: **{player.gold}**", inline=False)
             x += 1
             if x == 5:
                 embed.add_field(name=f":red_circle: Red Team", value=f"Total Kills: **{red_kills}**", inline=False)
