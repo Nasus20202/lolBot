@@ -48,4 +48,4 @@ class UserInfo:
         self.max_division = max_division
         self.top_champs = top_champs
         self.total_points = total_points
-        total_mastery = total_mastery
+        self.total_mastery = total_mastery

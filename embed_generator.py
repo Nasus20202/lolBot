@@ -1,5 +1,6 @@
 import discord
 from datetime import datetime
+import requests
 
 # big brain file hosting :)
 rank_assets = {
@@ -14,6 +15,11 @@ rank_assets = {
     "GRANDMASTER": "https://cdn.discordapp.com/attachments/989905618494181386/989905732176592956/grandmaster.png?size=4096",
     "CHALLANGER": "https://cdn.discordapp.com/attachments/989905618494181386/989905731186749470/challenger.png?size=4096" 
 }
+
+champion_info = requests.get("https://ddragon.leagueoflegends.com/cdn/12.12.1/data/en_US/champion.json").json()
+champion_name = {}
+for champion in champion_info["data"]:
+    champion_name[int(champion_info["data"][champion]["key"])] = champion
 
 async def generate_match_embed(game_info, username):
         multikill_names=["Doublekill", "Triplekill", "Quadrakill", "Pentakill"]
@@ -62,11 +68,15 @@ async def generate_match_embed(game_info, username):
         return embed
 
 async def generate_user_embed(user_info):
-    embed = discord.Embed(title=f"{user_info.summoner_name}", description=f"{user_info}", color=0x53a8e8)
+    embed = discord.Embed(title=f"{user_info.level} level", description=f"", color=0x53a8e8)
     embed.set_author(name=user_info.summoner_name, icon_url=f"https://ddragon.leagueoflegends.com/cdn/12.12.1/img/profileicon/{user_info.icon}.png")
     embed.set_thumbnail(url=rank_assets[user_info.max_division.upper()])
-    embed.add_field(name=f"Solo/Duo - {user_info.rank_solo}", value=f"{str(user_info.lp_solo) + ' LP, ' if user_info.rank_solo != 'UNRANKED' else ''}{user_info.wins_solo + user_info.losses_solo} games{f', {round(user_info.wins_solo/(user_info.losses_solo + user_info.wins_solo) * 100, 2)} % WR' if (user_info.losses_solo + user_info.wins_solo) > 0 else ''}")
-    embed.add_field(name=f"Flex - {user_info.rank_flex}", value=f"{str(user_info.lp_flex) + ' LP, ' if user_info.rank_flex != 'UNRANKED' else ''}{user_info.wins_flex + user_info.losses_flex} games{f', {round(user_info.wins_flex/(user_info.losses_flex + user_info.wins_flex) * 100, 2)} % WR' if (user_info.losses_flex + user_info.wins_flex) > 0 else ''}")
+    embed.add_field(name=f"Solo/Duo - {user_info.rank_solo}", value=f"{str(user_info.lp_solo) + ' LP, ' if user_info.rank_solo != 'UNRANKED' else ''}{user_info.wins_solo + user_info.losses_solo} games{f', {round(user_info.wins_solo/(user_info.losses_solo + user_info.wins_solo) * 100, 2)}% WR' if (user_info.losses_solo + user_info.wins_solo) > 0 else ''}")
+    embed.add_field(name=f"Flex - {user_info.rank_flex}", value=f"{str(user_info.lp_flex) + ' LP, ' if user_info.rank_flex != 'UNRANKED' else ''}{user_info.wins_flex + user_info.losses_flex} games{f', {round(user_info.wins_flex/(user_info.losses_flex + user_info.wins_flex) * 100, 2)}% WR' if (user_info.losses_flex + user_info.wins_flex) > 0 else ''}")
+    embed.add_field(name=f"Total Mastery: {user_info.total_mastery}", value=f" Total Points: {user_info.total_points:,}", inline=False)
+    for champion in user_info.top_champs[:3]:
+        embed.add_field(name=f"{await repair_champ_name(champion_name[champion[0]])} ({champion[1]} lvl)", value=f"{champion[2]:,} pts.")
+    
     return embed
     
     
