@@ -19,8 +19,8 @@ rank_assets = {
 
 champion_info = requests.get("https://ddragon.leagueoflegends.com/cdn/12.12.1/data/en_US/champion.json").json()
 champion_name = {}
-for champion in champion_info["data"]:
-    champion_name[int(champion_info["data"][champion]["key"])] = champion
+#for champion in champion_info["data"]:
+#    champion_name[int(champion_info["data"][champion]["key"])] = champion
 
 async def generate_match_embed(game_info, username):
         multikill_names=["Doublekill", "Triplekill", "Quadrakill", "Pentakill"]
@@ -76,7 +76,10 @@ async def generate_user_embed(user_info):
     embed.add_field(name=f"Flex - {user_info.rank_flex}", value=f"{str(user_info.lp_flex) + ' LP, ' if user_info.rank_flex != 'UNRANKED' else ''}{user_info.wins_flex + user_info.losses_flex} games{f', {round(user_info.wins_flex/(user_info.losses_flex + user_info.wins_flex) * 100, 2)}% WR' if (user_info.losses_flex + user_info.wins_flex) > 0 else ''}")
     embed.add_field(name=f"Total Mastery: {user_info.total_mastery}", value=f" Total Points: {user_info.total_points:,}", inline=False)
     for champion in user_info.top_champs[:3]:
-        embed.add_field(name=f"{await repair_champ_name(champion_name[champion[0]])} ({champion[1]} lvl)", value=f"{champion[2]:,} pts.")
+        name = f"ID: {champion[0]}"
+        if (champion[0] in champion_name):
+            name = await repair_champ_name(champion_name[champion[0]])
+        embed.add_field(name=f"{name} ({champion[1]} lvl)", value=f"{champion[2]:,} pts.")
     
     return embed
     
