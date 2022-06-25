@@ -19,8 +19,8 @@ rank_assets = {
 
 champion_info = requests.get("https://ddragon.leagueoflegends.com/cdn/12.12.1/data/en_US/champion.json").json()
 champion_name = {}
-#for champion in champion_info["data"]:
-#    champion_name[int(champion_info["data"][champion]["key"])] = champion
+for champion in champion_info["data"]:
+    champion_name[int(champion_info["data"][champion]["key"])] = champion
 
 async def generate_match_embed(game_info, username):
         multikill_names=["Doublekill", "Triplekill", "Quadrakill", "Pentakill"]
