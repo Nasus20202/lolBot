@@ -3,7 +3,7 @@ from game_info import GameInfo, PlayerInfo, UserInfo
 
 class RiotAPI:
     queueTypes = {400: "Draft", 420: "Solo/Duo", 430: "Blind", 440: "Flex", 450: "ARAM", 700: "Clash"}
-    queueWeight = {"UNRANKED": -1, "IRON": 0, "BRONZE": 1, "SILVER": 2, "GOLD": 3, "PLATINUM": 4, "DIAMOND": 5, "MASTER": 6, "GRANDMASTER": 7, "CHALLENGER": 8}
+    queueWeight = {"UNRANKED": -1, "IRON": 0, "BRONZE": 1, "SILVER": 2, "GOLD": 3, "PLATINUM": 4, "EMERALD" : 5, "DIAMOND": 6, "MASTER": 7, "GRANDMASTER": 8, "CHALLENGER": 9}
 
     def __init__(self, api_key, server="eun1", region="europe"):
         self.api_key = api_key
@@ -110,6 +110,8 @@ class RiotAPI:
             async with session.get(url, params=params) as response:
                 data = await response.json()
                 for rankData in data:
+                    if "rank" not in data:
+                        continue
                     queue = rankData["queueType"]
                     tier = rankData["tier"]
                     rank = rankData["rank"]

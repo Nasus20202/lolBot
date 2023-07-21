@@ -8,7 +8,7 @@ import riot_api
 
 def main():
     load_dotenv()
-    intents = discord.Intents.default()
+    intents = discord.Intents.all()
     intents.members = True
     intents.presences = True
     intents.guilds = True
