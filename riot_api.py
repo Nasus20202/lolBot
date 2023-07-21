@@ -110,7 +110,7 @@ class RiotAPI:
             async with session.get(url, params=params) as response:
                 data = await response.json()
                 for rankData in data:
-                    if "rank" not in data:
+                    if "rank" not in rankData:
                         continue
                     queue = rankData["queueType"]
                     tier = rankData["tier"]

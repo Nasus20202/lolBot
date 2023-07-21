@@ -14,3 +14,6 @@ League Stats bot for Discord is a simple tool to check your last games, match hi
 DISCORD_TOKEN=YOUR_DICORD_TOKEN
 RIOT_TOKEN=YOUR_RIOT_TOKEN
 ```
+
+### Try it out!
+https://discord.com/api/oauth2/authorize?client_id=989636329572810782&permissions=18432&scope=bot%20applications.commands
