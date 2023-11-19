@@ -1,5 +1,13 @@
 import aiohttp
+import discord
 from game_info import GameInfo, PlayerInfo, UserInfo
+from discord.ext import commands
+from your_riot_api_file import RiotAPI
+
+riot_api_key = 'RGAPI-efe54fff-7d39-41c6-9fc5-dddf4b88cbbd'
+discord_bot_token = 'MTE3NTg5ODI0ODYzNzA3MTUwMQ.GHoE_Y.lzOEz0tEUkwA1D_EftqS3EJsJ1eKb7ny9bkoW4'
+
+riot_api = RiotAPI(api_key=riot_api_key, server="euw1", region="europe")
 
 class RiotAPI:
     queueTypes = {400: "Draft", 420: "Solo/Duo", 430: "Blind", 440: "Flex", 450: "ARAM", 700: "Clash"}
