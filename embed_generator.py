@@ -18,10 +18,13 @@ rank_assets = {
     "CHALLANGER": "https://cdn.discordapp.com/attachments/989905618494181386/989905731186749470/challenger.png" 
 }
 
-champion_info = requests.get("https://ddragon.leagueoflegends.com/cdn/13.14.1/data/en_US/champion.json").json()
+champion_info = requests.get("https://ddragon.leagueoflegends.com/cdn/13.23.1/data/en_US/champion.json").json()
 champion_name = {}
 for champion in champion_info["data"]:
     champion_name[int(champion_info["data"][champion]["key"])] = champion
+
+def icon_url(icon_id):
+    return f"https://ddragon.leagueoflegends.com/cdn/13.23.1/img/profileicon/{icon_id}.png"
 
 async def generate_match_embed(game_info, username):
         multikill_names=["Doublekill", "Triplekill", "Quadrakill", "Pentakill"]
@@ -71,7 +74,7 @@ async def generate_match_embed(game_info, username):
 
 async def generate_user_embed(user_info):
     embed = discord.Embed(title=f"{user_info.level} level", description=f"", color=random.randint(0, 16777215))
-    embed.set_author(name=user_info.summoner_name, icon_url=f"https://ddragon.leagueoflegends.com/cdn/13.14.1/img/profileicon/{user_info.icon}.png")
+    embed.set_author(name=user_info.summoner_name, icon_url=icon_url(user_info.icon))
     embed.set_thumbnail(url=rank_assets[user_info.max_division.upper()])
     embed.add_field(name=f"Solo/Duo - {user_info.rank_solo}", value=f"{str(user_info.lp_solo) + ' LP, ' if user_info.rank_solo != 'UNRANKED' else ''}{user_info.wins_solo + user_info.losses_solo} games{f', {round(user_info.wins_solo/(user_info.losses_solo + user_info.wins_solo) * 100, 2)}% WR' if (user_info.losses_solo + user_info.wins_solo) > 0 else ''}")
     embed.add_field(name=f"Flex - {user_info.rank_flex}", value=f"{str(user_info.lp_flex) + ' LP, ' if user_info.rank_flex != 'UNRANKED' else ''}{user_info.wins_flex + user_info.losses_flex} games{f', {round(user_info.wins_flex/(user_info.losses_flex + user_info.wins_flex) * 100, 2)}% WR' if (user_info.losses_flex + user_info.wins_flex) > 0 else ''}")
@@ -86,7 +89,7 @@ async def generate_user_embed(user_info):
     
 async def generate_history_embed(match_history):
     embed = discord.Embed(title=f"Last {len(match_history[0])} Games", description=f"", color=random.randint(0, 16777215))
-    embed.set_author(name=f"{match_history[1]['name']} ({match_history[1]['summonerLevel']} lvl)", icon_url=f"https://ddragon.leagueoflegends.com/cdn/12.12.1/img/profileicon/{match_history[1]['profileIconId']}.png")
+    embed.set_author(name=f"{match_history[1]['name']} ({match_history[1]['summonerLevel']} lvl)", icon_url=icon_url({match_history[1]['profileIconId']}))
     for i in range(len(match_history[0])):
         match = match_history[0][i]
         for participant in match.participants:
