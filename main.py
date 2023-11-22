@@ -138,7 +138,7 @@ def main():
         await ctx.send(embed=embed)
 
     def log_command(ctx, arg):
-        log(f'Command: [{ctx.command} {arg}] from [{ctx.author}] in [{ctx.guild}]')
+        log(f'Command [{ctx.command} {arg}] from [{ctx.author}] in [{ctx.guild}]')
 
     def log(message, level="INFO"):
         timestamp = datetime.datetime.now()
