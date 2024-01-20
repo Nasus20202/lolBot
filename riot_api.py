@@ -132,8 +132,8 @@ class RiotAPI:
                     ranks.append(rankArray)
         return ranks
 
-    async def get_mastery_info(self, user_id):
-        url = f"{self.base_url}lol/champion-mastery/v4/champion-masteries/by-summoner/{user_id}"
+    async def get_mastery_info(self, puuid):
+        url = f"{self.base_url}lol/champion-mastery/v4/champion-masteries/by-puuid/{puuid}"
         params = {'api_key': self.api_key}
         champions = []
         async with aiohttp.ClientSession() as session:
@@ -182,7 +182,7 @@ class RiotAPI:
             if(self.queueWeight[max_division.upper()] < self.queueWeight[rank[1].upper()]):
                 max_division = rank[1].upper()
             
-        champions = await self.get_mastery_info(id)
+        champions = await self.get_mastery_info(puuid)
         top_champs = champions[:3]
         total_mastery = 0
         total_points = 0
