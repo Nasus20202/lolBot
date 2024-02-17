@@ -1,4 +1,3 @@
-
 class GameInfo:
     def __init__(self, id, start_time, duration, winner, participants, queue_type):
         self.id = id
@@ -10,7 +9,23 @@ class GameInfo:
 
 
 class PlayerInfo:
-    def __init__(self, id, summoner_name, kills, deaths, assists, champion_name, champion_id, gold, damage, creep_score, vision_score, team, multikills, position):
+    def __init__(
+        self,
+        id,
+        summoner_name,
+        kills,
+        deaths,
+        assists,
+        champion_name,
+        champion_id,
+        gold,
+        damage,
+        creep_score,
+        vision_score,
+        team,
+        multikills,
+        position,
+    ):
         self.id = id
         self.summoner_name = summoner_name
         self.kills = kills
@@ -29,10 +44,29 @@ class PlayerInfo:
     def kda(self):
         if self.deaths == 0:
             return "Perfect"
-        return str(round((self.kills + self.assists)/self.deaths, 2))
+        return str(round((self.kills + self.assists) / self.deaths, 2))
+
 
 class UserInfo:
-    def __init__(self, id, summoner_name, level, icon, rank_solo, rank_flex, lp_solo, lp_flex, wins_solo, losses_solo, wins_flex, losses_flex, max_division, top_champs, total_points, total_mastery):
+    def __init__(
+        self,
+        id,
+        summoner_name,
+        level,
+        icon,
+        rank_solo,
+        rank_flex,
+        lp_solo,
+        lp_flex,
+        wins_solo,
+        losses_solo,
+        wins_flex,
+        losses_flex,
+        max_division,
+        top_champs,
+        total_points,
+        total_mastery,
+    ):
         self.id = id
         self.summoner_name = summoner_name
         self.level = level
