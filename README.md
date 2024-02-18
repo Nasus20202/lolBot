@@ -4,9 +4,9 @@ League Stats bot for Discord is a simple tool to check your last games, match hi
 
 ## List of commands:
 ```
-!profile {player} - See your rank, mastery and favourite champs (!player, !rank, !user, !p, !r, !u)
-!match {player} {1-100} - Your game, if no ID given - last (!m, !last, !l)
-!history {player} {1-20} - Check your game history (!matches, !h)
+/profile {player} {tag} - See your rank, mastery and favourite champs
+/match {player} {tag} {1-100?} - Your game from history, if no ID given - last
+/history {player} {tag} {1-20?} - Check your game history
 ```
 
 ## .env file:
