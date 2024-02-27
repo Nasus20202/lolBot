@@ -13,7 +13,21 @@ League Stats bot for Discord is a simple tool to check your last games, match hi
 ```
 DISCORD_TOKEN=YOUR_DICORD_TOKEN
 RIOT_TOKEN=YOUR_RIOT_TOKEN
+(Optional) SERVER=eun1
+(Optional) REGION=europe
 ```
+
+## Running the bot:
+Your can run this bot using Docker
+```bash
+docker compose up -d 
+```
+or local Python interpreter
+```bash
+pip install -r requirements.txt
+python ./src/main.py
+```
+`.env` file should be located in the root directory. Alternatively, you can use shell environment variables.
 
 ### Try it out!
 https://discord.com/api/oauth2/authorize?client_id=989636329572810782&permissions=18432&scope=bot%20applications.commands

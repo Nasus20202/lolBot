@@ -12,8 +12,8 @@ def main():
     intents = discord.Intents.default()
 
     # Riot API constants
-    server = "eun1"
-    region = "europe"
+    server = os.getenv("SERVER", "eun1")
+    region = os.getenv("REGION", "europe")
 
     bot = discord_commands.Bot(command_prefix="!", intents=intents)
     riot_client = riot_api.RiotAPI(os.getenv("RIOT_TOKEN"), server, region)
@@ -73,6 +73,7 @@ def main():
     async def history(
         interaction: discord.Interaction, name: str, tag: str, count: int = 5
     ):
+        await interaction.response.defer() # this function run for quite a long time for higher match count
         log_command(interaction)
         if count > 20 or count < 1:
             count = 5
@@ -89,7 +90,7 @@ def main():
             )
             return
         embed = await embed_generator.generate_history_embed(data)
-        await interaction.response.send_message(embed=embed)
+        await interaction.followup.send(embed=embed)
 
     def log_command(interaction: discord.Interaction):
         command = interaction.data["name"]
@@ -104,7 +105,7 @@ def main():
     def log(message, level="INFO"):
         timestamp = datetime.datetime.now()
         timestamp_str = timestamp.strftime("%Y-%m-%d %H:%M:%S")
-        print(f"[{timestamp_str}\t{level}] {message}")
+        print(f"{timestamp_str} {level}\t{message}")
 
     def riot_account_not_found(gameName, tagLine):
         return f"Riot Account {gameName}#{tagLine} doesn't exsit!"

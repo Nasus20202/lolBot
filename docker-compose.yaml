@@ -1,0 +1,8 @@
+services:
+  league-bot:
+    build: .
+    environment:
+      DISCORD_TOKEN: ${DISCORD_TOKEN}
+      RIOT_TOKEN: ${RIOT_TOKEN}
+      SERVER: "eun1"
+      REGION: "europe"
