@@ -42,7 +42,7 @@ def main():
         await command_tree.sync()
         log(f"Logged in as {bot.user} (ID: {bot.user.id})")
         await bot.change_presence(
-            status=discord.Status.online, activity=discord.Game("League of Legends")
+            status=discord.Status.online, activity=discord.CustomActivity(name="Check /help for more info")
         )
 
     @command_tree.command(name="match", description="Shows n-th last match of a player")
@@ -67,7 +67,7 @@ def main():
 
         summoner = await riot_client.get_summoner_by_puuid(puuid, server_code)
         if summoner["status_code"] != 200:
-            await interaction.response.send_message(summoner_not_found(name, tag))
+            await interaction.response.send_message(summoner_not_found(name, tag, server.upper()))
             return
 
         if int(id) > 100 or int(id) < 1:
@@ -75,11 +75,13 @@ def main():
                 f"You can only see your last 100 matches!"
             )
             return
-        match_info = await riot_client.get_recent_match_info(puuid, server_code, int(id) - 1)
+        match_info = await riot_client.get_recent_match_info(
+            puuid, server_code, int(id) - 1
+        )
         if match_info is None:
             await interaction.response.send_message(f"Match not found!")
             return
-        embed = await embed_generator.generate_match_embed(match_info, summoner["name"])
+        embed = embed_generator.generate_match_embed(match_info, summoner["name"])
         await interaction.response.send_message(embed=embed)
 
     @command_tree.command(name="profile", description="Shows profile of a player")
@@ -100,10 +102,10 @@ def main():
 
         data = await riot_client.get_profile_info(puuid, server_code)
         if data["status_code"] != 200:
-            await interaction.response.send_message(summoner_not_found(name, tag))
+            await interaction.response.send_message(summoner_not_found(name, tag, server.upper()))
             return
         user = data["user"]
-        embed = await embed_generator.generate_user_embed(user)
+        embed = embed_generator.generate_user_embed(user)
         await interaction.response.send_message(embed=embed)
 
     @command_tree.command(
@@ -133,14 +135,23 @@ def main():
             await interaction.response.send_message(riot_account_not_found(name, tag))
             return
 
-        data = await riot_client.get_recent_matches_infos(puuid, server_code, int(count))
+        data = await riot_client.get_recent_matches_infos(
+            puuid, server_code, int(count)
+        )
         if len(data[0]) <= 0:
             await interaction.response.send_message(
                 f"No match history found for summoner {name}#{tag}"
             )
             return
-        embed = await embed_generator.generate_history_embed(data)
+        embed = embed_generator.generate_history_embed(data)
         await interaction.followup.send(embed=embed)
+
+    @command_tree.command(name="help", description="Shows all available commands")
+    async def help(interaction: discord.Interaction):
+        log_command(interaction)
+
+        embed = embed_generator.generate_help_embed(server_names, default_server)
+        await interaction.response.send_message(embed=embed)
 
     def get_server_code(server_name):
         server_name = server_name.upper()
@@ -150,7 +161,9 @@ def main():
 
     def log_command(interaction: discord.Interaction):
         command = interaction.data["name"]
-        options = " ".join([str(x["value"]) for x in interaction.data["options"]])
+        options = ""
+        if "options" in interaction.data:
+            options = " ".join([str(x["value"]) for x in interaction.data["options"]])
         user = interaction.user
         guild = interaction.guild
         channel = interaction.channel
@@ -164,10 +177,10 @@ def main():
         print(f"{timestamp_str} {level}\t{message}")
 
     def riot_account_not_found(gameName, tagLine):
-        return f"Riot Account {gameName}#{tagLine} doesn't exsit!"
+        return f"Riot Account {gameName}#{tagLine} doesn't exist!"
 
-    def summoner_not_found(gameName, tagLine):
-        return f"Summoner {gameName}#{tagLine} doesn't exsit!"
+    def summoner_not_found(gameName, tagLine, server):
+        return f"Summoner {gameName}#{tagLine} doesn't exist on the {server} server!"
 
     def invalid_server(server):
         return f"Server {server} doesn't exsit! Please use one of the following: {', '.join(server_names.keys())}"

@@ -32,7 +32,7 @@ def icon_url(icon_id):
     return f"https://ddragon.leagueoflegends.com/cdn/{league_patch}/img/profileicon/{icon_id}.png"
 
 
-async def generate_match_embed(game_info, username):
+def generate_match_embed(game_info, username):
     multikill_names = ["Doublekill", "Triplekill", "Quadrakill", "Pentakill"]
     blue_kills = 0
     red_kills = 0
@@ -83,7 +83,7 @@ async def generate_match_embed(game_info, username):
             multikill = f"{multikill_names[max_multikill]} {'x' if count > 1 else ''}{count if count > 1 else ''}{':exclamation:' if max_multikill >= 2 else ''}"
         star = "\u2605" if player.damage == top_damage else ""
         embed.add_field(
-            name=f"{player.summoner_name} - {await repair_champ_name(player.champion_name)} {player.kills}/{player.deaths}/{player.assists} {last_char} {multikill}",
+            name=f"{player.summoner_name} - {repair_champ_name(player.champion_name)} {player.kills}/{player.deaths}/{player.assists} {last_char} {multikill}",
             value=f"KDA: **{player.kda()}**, CS: **{player.creep_score}** ({round(float(player.creep_score)/(float(game_info.duration)/60.0), 2)}), {star}DMG: **{player.damage}**, GOLD: **{player.gold}**",
             inline=False,
         )
@@ -101,7 +101,7 @@ async def generate_match_embed(game_info, username):
     return embed
 
 
-async def generate_user_embed(user_info):
+def generate_user_embed(user_info):
     embed = discord.Embed(
         title=f"{user_info.level} level",
         description=f"",
@@ -125,7 +125,7 @@ async def generate_user_embed(user_info):
     for champion in user_info.top_champs[:3]:
         name = f"ID: {champion[0]}"
         if champion[0] in champion_name:
-            name = await repair_champ_name(champion_name[champion[0]])
+            name = repair_champ_name(champion_name[champion[0]])
         embed.add_field(
             name=f"{name} ({champion[1]} lvl)", value=f"{champion[2]:,} pts."
         )
@@ -133,7 +133,7 @@ async def generate_user_embed(user_info):
     return embed
 
 
-async def generate_history_embed(match_history):
+def generate_history_embed(match_history):
     embed = discord.Embed(
         title=f"Last {len(match_history[0])} Games",
         description=f"",
@@ -163,7 +163,27 @@ async def generate_history_embed(match_history):
     return embed
 
 
-async def repair_champ_name(champ_name):
+def generate_help_embed(server_names, default_server):
+    embed = discord.Embed(
+        title=f"Help",
+        description=f"",
+        color=random.randint(0, 16777215),
+    )
+    help_data = [
+        {"name": "Commands", "value": ""},
+        {"name": "/profile {name} {tag} {server?}", "value": "See your rank, mastery and favourite champs"},
+        {"name": "/match {name} {tag} {id?} {server?}", "value": "Inspect game from your history, default last game. Your can use /history to get game id."},
+        {"name": "/history {name} {tag} {count?} {server?}", "value": "Check last 1-20 games of a player, default 5"},
+        {"name": "", "value": ""},
+        {"name": f"Avaiable game servers (default is {default_server})", "value": ", ".join(server_names.keys())},
+        {"name": "Github", "value": "https://github.com/Nasus20202/lolBot"},
+    ]
+    for data in help_data:
+        embed.add_field(name=data["name"], value=data["value"], inline=False)
+    return embed
+
+
+def repair_champ_name(champ_name):
     new_champ_name = ""
     for i in champ_name:
         if i <= "Z" and new_champ_name != "":
