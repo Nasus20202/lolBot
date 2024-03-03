@@ -25,13 +25,15 @@ class RiotAPI:
         "CHALLENGER": 9,
     }
 
-    def __init__(self, api_key, server, region):
+    def __init__(self, api_key, region):
         self.api_key = api_key
-        self.base_url = f"https://{server}.api.riotgames.com/"
-        self.base_url_universal = f"https://{region}.api.riotgames.com/"
+        self.universal_api_url = f"https://{region}.api.riotgames.com/"
+
+    def get_server_url(self, server):
+        return f"https://{server}.api.riotgames.com/"
 
     async def get_riot_account_puuid(self, gameName, tagLine):
-        url = f"{self.base_url_universal}riot/account/v1/accounts/by-riot-id/{gameName}/{tagLine}"
+        url = f"{self.universal_api_url}riot/account/v1/accounts/by-riot-id/{gameName}/{tagLine}"
         params = {"api_key": self.api_key}
         async with aiohttp.ClientSession() as session:
             async with session.get(url, params=params) as response:
@@ -40,8 +42,8 @@ class RiotAPI:
                     return data["puuid"]
                 return None
 
-    async def get_summoner_by_puuid(self, puuid):
-        url = f"{self.base_url}lol/summoner/v4/summoners/by-puuid/{puuid}"
+    async def get_summoner_by_puuid(self, puuid, server):
+        url = f"{self.get_server_url(server)}lol/summoner/v4/summoners/by-puuid/{puuid}"
         params = {"api_key": self.api_key}
         async with aiohttp.ClientSession() as session:
             async with session.get(url, params=params) as response:
@@ -53,7 +55,7 @@ class RiotAPI:
                 return data["status"]
 
     async def get_matches_ids_by_puuid(self, puuid, count=20, start=0):
-        url = f"{self.base_url_universal}lol/match/v5/matches/by-puuid/{puuid}/ids"
+        url = f"{self.universal_api_url}lol/match/v5/matches/by-puuid/{puuid}/ids"
         params = {"api_key": self.api_key, "count": count, "start": start}
         async with aiohttp.ClientSession() as session:
             async with session.get(url, params=params) as response:
@@ -63,7 +65,7 @@ class RiotAPI:
                 return []
 
     async def get_raw_match_info_by_id(self, match_id):
-        url = f"{self.base_url_universal}lol/match/v5/matches/{match_id}"
+        url = f"{self.universal_api_url}lol/match/v5/matches/{match_id}"
         params = {"api_key": self.api_key}
         async with aiohttp.ClientSession() as session:
             async with session.get(url, params=params) as response:
@@ -74,8 +76,8 @@ class RiotAPI:
                     return data
                 return data["status"]
 
-    async def get_recent_matches_ids(self, puuid, count=20):
-        summoner_data = await self.get_summoner_by_puuid(puuid)
+    async def get_recent_matches_ids(self, puuid, server, count=20):
+        summoner_data = await self.get_summoner_by_puuid(puuid, server)
         if summoner_data["status_code"] != 200:
             return [[], summoner_data]
         summoner_puuid = summoner_data["puuid"]
@@ -144,23 +146,25 @@ class RiotAPI:
         )
         return game_info
 
-    async def get_recent_matches_infos(self, puuid, count=20):
+    async def get_recent_matches_infos(self, puuid, server, count=20):
         matches_infos = []
-        data = await self.get_recent_matches_ids(puuid, count)
+        data = await self.get_recent_matches_ids(puuid, server, count)
         for match_id in data[0]:
             match_info = await self.get_match_info_by_id(match_id)
             if match_info is not None:
                 matches_infos.append(match_info)
         return [matches_infos, data[1]]
 
-    async def get_recent_match_info(self, puuid, id=0):
-        match_data = await self.get_recent_matches_ids(puuid, id + 1)
+    async def get_recent_match_info(self, puuid, server, id=0):
+        match_data = await self.get_recent_matches_ids(puuid, server, id + 1)
         if len(match_data[0]) > id:
             return await self.get_match_info_by_id(match_data[0][id])
         return None
 
-    async def get_ranked_info(self, user_id):
-        url = f"{self.base_url}lol/league/v4/entries/by-summoner/{user_id}"
+    async def get_ranked_info(self, user_id, server):
+        url = (
+            f"{self.get_server_url(server)}lol/league/v4/entries/by-summoner/{user_id}"
+        )
         params = {"api_key": self.api_key}
         ranks = []
         async with aiohttp.ClientSession() as session:
@@ -179,8 +183,8 @@ class RiotAPI:
                     ranks.append(rankArray)
         return ranks
 
-    async def get_mastery_info(self, puuid):
-        url = f"{self.base_url}lol/champion-mastery/v4/champion-masteries/by-puuid/{puuid}"
+    async def get_mastery_info(self, puuid, server):
+        url = f"{self.get_server_url(server)}lol/champion-mastery/v4/champion-masteries/by-puuid/{puuid}"
         params = {"api_key": self.api_key}
         champions = []
         async with aiohttp.ClientSession() as session:
@@ -195,15 +199,15 @@ class RiotAPI:
                     champions.append([id, level, points, last_play, chest])
         return champions
 
-    async def get_profile_info(self, puuid):
-        summoner = await self.get_summoner_by_puuid(puuid)
+    async def get_profile_info(self, puuid, server):
+        summoner = await self.get_summoner_by_puuid(puuid, server)
         if summoner["status_code"] != 200:
             return {"status_code": 404, "message": "Summoner not found"}
         id = summoner["id"]
         summoner_name = summoner["name"]
         level = summoner["summonerLevel"]
         icon = summoner["profileIconId"]
-        ranks = await self.get_ranked_info(id)
+        ranks = await self.get_ranked_info(id, server)
         rank_solo = "UNRANKED"
         rank_flex = "UNRANKED"
         lp_solo = 0
@@ -230,7 +234,7 @@ class RiotAPI:
             ):
                 max_division = rank[1].upper()
 
-        champions = await self.get_mastery_info(puuid)
+        champions = await self.get_mastery_info(puuid, server)
         top_champs = champions[:3]
         total_mastery = 0
         total_points = 0
