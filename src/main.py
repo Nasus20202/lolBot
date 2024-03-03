@@ -14,25 +14,6 @@ def main():
     region = os.getenv("REGION", "europe")
     default_server = os.getenv("DEFAULT_SERVER", "EUNE")
 
-    server_names = {
-        "BR": "BR1",
-        "EUNE": "EUN1",
-        "EUW": "EUW1",
-        "LAN": "LA1",
-        "LAS": "LA2",
-        "NA": "NA1",
-        "OCE": "OC1",
-        "RU": "RU",
-        "TR": "TR1",
-        "JP": "JP1",
-        "KR": "KR",
-        "PH": "PH2",
-        "SG": "SG2",
-        "TW": "TW2",
-        "TH": "TH2",
-        "VN": "VN2",
-    }
-
     bot = discord.Client(intents=intents)
     command_tree = discord.app_commands.CommandTree(client=bot)
     riot_client = riot_api.RiotAPI(os.getenv("RIOT_TOKEN"), region)
@@ -155,14 +136,16 @@ def main():
     async def help(interaction: discord.Interaction):
         log_command(interaction)
 
-        embed = embed_generator.generate_help_embed(server_names, default_server)
+        embed = embed_generator.generate_help_embed(
+            riot_client.server_names, default_server
+        )
         await interaction.response.send_message(embed=embed)
 
     def get_server_code(server_name):
         server_name = server_name.upper()
-        if server_name not in server_names:
+        if server_name not in riot_client.server_names:
             return None
-        return server_names[server_name]
+        return riot_client.server_names[server_name]
 
     def log_command(interaction: discord.Interaction):
         command = interaction.data["name"]
@@ -188,7 +171,7 @@ def main():
         return f"Summoner {gameName}#{tagLine} doesn't exist on the {server} server!"
 
     def invalid_server(server):
-        return f"Server {server} doesn't exsit! Please use one of the following: {', '.join(server_names.keys())}"
+        return f"Server {server} doesn't exsit! Please use one of the following: {', '.join(riot_client.server_names.keys())}"
 
     bot.run(os.environ.get("DISCORD_TOKEN"))
 

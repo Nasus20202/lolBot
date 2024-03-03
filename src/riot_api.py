@@ -3,7 +3,7 @@ from game_info import GameInfo, PlayerInfo, UserInfo
 
 
 class RiotAPI:
-    queueTypes = {
+    queue_types = {
         400: "Draft",
         420: "Solo/Duo",
         430: "Blind",
@@ -11,7 +11,7 @@ class RiotAPI:
         450: "ARAM",
         700: "Clash",
     }
-    queueWeight = {
+    queue_weight = {
         "UNRANKED": -1,
         "IRON": 0,
         "BRONZE": 1,
@@ -23,6 +23,24 @@ class RiotAPI:
         "MASTER": 7,
         "GRANDMASTER": 8,
         "CHALLENGER": 9,
+    }
+    server_names = {
+        "BR": "BR1",
+        "EUNE": "EUN1",
+        "EUW": "EUW1",
+        "LAN": "LA1",
+        "LAS": "LA2",
+        "NA": "NA1",
+        "OCE": "OC1",
+        "RU": "RU",
+        "TR": "TR1",
+        "JP": "JP1",
+        "KR": "KR",
+        "PH": "PH2",
+        "SG": "SG2",
+        "TW": "TW2",
+        "TH": "TH2",
+        "VN": "VN2",
     }
 
     def __init__(self, api_key, region):
@@ -94,8 +112,8 @@ class RiotAPI:
         game_duration = raw_data["info"]["gameDuration"]
         queueId = raw_data["info"]["queueId"]
         queue_type = "Other"
-        if queueId in self.queueTypes:
-            queue_type = self.queueTypes[queueId]
+        if queueId in self.queue_types:
+            queue_type = self.queue_types[queueId]
         winner = "Blue"
         participants = []
         for participant in raw_data["info"]["participants"]:
@@ -229,8 +247,8 @@ class RiotAPI:
                 wins_flex = rank[4]
                 losses_flex = rank[5]
             if (
-                self.queueWeight[max_division.upper()]
-                < self.queueWeight[rank[1].upper()]
+                self.queue_weight[max_division.upper()]
+                < self.queue_weight[rank[1].upper()]
             ):
                 max_division = rank[1].upper()
 
