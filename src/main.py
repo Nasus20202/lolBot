@@ -42,7 +42,8 @@ def main():
         await command_tree.sync()
         log(f"Logged in as {bot.user} (ID: {bot.user.id})")
         await bot.change_presence(
-            status=discord.Status.online, activity=discord.CustomActivity(name="Check /help for more info")
+            status=discord.Status.online,
+            activity=discord.CustomActivity(name="Check /help for more info"),
         )
 
     @command_tree.command(name="match", description="Shows n-th last match of a player")
@@ -67,7 +68,9 @@ def main():
 
         summoner = await riot_client.get_summoner_by_puuid(puuid, server_code)
         if summoner["status_code"] != 200:
-            await interaction.response.send_message(summoner_not_found(name, tag, server.upper()))
+            await interaction.response.send_message(
+                summoner_not_found(name, tag, server.upper())
+            )
             return
 
         if int(id) > 100 or int(id) < 1:
@@ -102,7 +105,9 @@ def main():
 
         data = await riot_client.get_profile_info(puuid, server_code)
         if data["status_code"] != 200:
-            await interaction.response.send_message(summoner_not_found(name, tag, server.upper()))
+            await interaction.response.send_message(
+                summoner_not_found(name, tag, server.upper())
+            )
             return
         user = data["user"]
         embed = embed_generator.generate_user_embed(user)

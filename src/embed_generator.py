@@ -171,11 +171,23 @@ def generate_help_embed(server_names, default_server):
     )
     help_data = [
         {"name": "Commands", "value": ""},
-        {"name": "/profile {name} {tag} {server?}", "value": "See your rank, mastery and favourite champs"},
-        {"name": "/match {name} {tag} {id?} {server?}", "value": "Inspect game from your history, default last game. Your can use /history to get game id."},
-        {"name": "/history {name} {tag} {count?} {server?}", "value": "Check last 1-20 games of a player, default 5"},
+        {
+            "name": "/profile {name} {tag} {server?}",
+            "value": "See your rank, mastery and favourite champs",
+        },
+        {
+            "name": "/match {name} {tag} {id?} {server?}",
+            "value": "Inspect game from your history, default last game. Your can use /history to get game id.",
+        },
+        {
+            "name": "/history {name} {tag} {count?} {server?}",
+            "value": "Check last 1-20 games of a player, default 5",
+        },
         {"name": "", "value": ""},
-        {"name": f"Avaiable game servers (default is {default_server})", "value": ", ".join(server_names.keys())},
+        {
+            "name": f"Avaiable game servers (default is {default_server})",
+            "value": ", ".join(server_names.keys()),
+        },
         {"name": "Github", "value": "https://github.com/Nasus20202/lolBot"},
     ]
     for data in help_data:
