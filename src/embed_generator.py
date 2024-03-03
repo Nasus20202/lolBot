@@ -148,18 +148,20 @@ def generate_history_embed(match_history):
         for participant in match.participants:
             if participant.id == match_history[1]["id"]:
                 m, s = divmod(match.duration, 60)
-                if match.duration < 300:
-                    embed.add_field(
-                        name=f":white_circle: {i+1} - {match.queue_type} - {participant.champion_name} {participant.kills}/{participant.deaths}/{participant.assists} - {m:02d}:{s:02d}",
-                        value=f"KDA: **{participant.kda()}**, CS: **{participant.creep_score}** ({round(float(participant.creep_score)/(float(match.duration)/60.0), 2)}), DMG: **{participant.damage}**, GOLD: **{participant.gold}**",
-                        inline=False,
+                result_emoji = (
+                    ":white_circle:"
+                    if match.duration < 300
+                    else (
+                        ":blue_circle:"
+                        if match.winner == participant.team
+                        else ":red_circle:"
                     )
-                else:
-                    embed.add_field(
-                        name=f"{':blue_circle:' if match.winner == participant.team else ':red_circle:'} {i+1} - {match.queue_type} - {participant.champion_name} {participant.kills}/{participant.deaths}/{participant.assists} - {m:02d}:{s:02d}",
-                        value=f"KDA: **{participant.kda()}**, CS: **{participant.creep_score}** ({round(float(participant.creep_score)/(float(match.duration)/60.0), 2)}), DMG: **{participant.damage}**, GOLD: **{participant.gold}**",
-                        inline=False,
-                    )
+                )
+                embed.add_field(
+                    name=f"{result_emoji} {i+1} - {match.queue_type} - {repair_champ_name(participant.champion_name)} {participant.kills}/{participant.deaths}/{participant.assists} - {m:02d}:{s:02d}",
+                    value=f"KDA: **{participant.kda()}**, CS: **{participant.creep_score}** ({round(float(participant.creep_score)/(float(match.duration)/60.0), 2)}), DMG: **{participant.damage}**, GOLD: **{participant.gold}**",
+                    inline=False,
+                )
     return embed
 
 
