@@ -32,7 +32,7 @@ def icon_url(icon_id):
     return f"https://ddragon.leagueoflegends.com/cdn/{league_patch}/img/profileicon/{icon_id}.png"
 
 
-def generate_match_embed(game_info, username):
+def generate_match_embed(game_info, puuid):
     multikill_names = ["Doublekill", "Triplekill", "Quadrakill", "Pentakill"]
     blue_kills = 0
     red_kills = 0
@@ -40,7 +40,7 @@ def generate_match_embed(game_info, username):
     winner = False
     top_damage = 0
     for player in game_info.participants:
-        if player.summoner_name == username:
+        if player.puuid == puuid:
             if player.team == game_info.winner:
                 winner = True
         if player.team == "Blue":
@@ -53,29 +53,27 @@ def generate_match_embed(game_info, username):
         if player.damage > top_damage:
             top_damage = player.damage
     m, s = divmod(game_info.duration, 60)
+
     status = "VICTORY" if winner else "DEFEAT"
-    if game_info.duration < 300:
-        embed = discord.Embed(
-            title=f"REMAKE",
-            description=f"Type: **{game_info.queue_type}**, Score: **{blue_kills} - {red_kills}**, Time: **{m:02d}:{s:02d}**",
-            color=0xAFAEAE,
-        )
-    else:
-        embed = discord.Embed(
-            title=f"{status} - {game_info.winner.upper()} TEAM WINS",
-            description=f"Type: **{game_info.queue_type}**, Score: **{blue_kills} - {red_kills}**, Time: **{m:02d}:{s:02d}**",
-            color=0x53A8E8 if winner else 0xDA2D43,
-        )
-    x = 0
+    title = (
+        "REMAKE"
+        if game_info.duration < 300
+        else f"{status} - {game_info.winner.upper()} TEAM WINS"
+    )
+    description = f"Type: **{game_info.queue_type}**, Score: **{blue_kills} - {red_kills}**, Time: **{m:02d}:{s:02d}**"
+    color = 0xAFAEAE if game_info.duration < 300 else 0x53A8E8 if winner else 0xDA2D43
+
+    embed = discord.Embed(title=title, description=description, color=color)
 
     embed.add_field(
         name=f":blue_circle: Blue Team",
         value=f"Total Kills: **{blue_kills}**",
         inline=False,
     )
+    counter = 0
     for player in game_info.participants:
         last_char = ""
-        if player.summoner_name == username:
+        if player.puuid == puuid:
             last_char = ":green_heart:"
         multikill = ""
         count = player.multikills[max_multikill]
@@ -83,12 +81,12 @@ def generate_match_embed(game_info, username):
             multikill = f"{multikill_names[max_multikill]} {'x' if count > 1 else ''}{count if count > 1 else ''}{':exclamation:' if max_multikill >= 2 else ''}"
         star = "\u2605" if player.damage == top_damage else ""
         embed.add_field(
-            name=f"{player.summoner_name} - {repair_champ_name(player.champion_name)} {player.kills}/{player.deaths}/{player.assists} {last_char} {multikill}",
+            name=f"{player.name} - {repair_champ_name(player.champion_name)} {player.kills}/{player.deaths}/{player.assists} {last_char} {multikill}",
             value=f"KDA: **{player.kda()}**, CS: **{player.creep_score}** ({round(float(player.creep_score)/(float(game_info.duration)/60.0), 2)}), {star}DMG: **{player.damage}**, GOLD: **{player.gold}**",
             inline=False,
         )
-        x += 1
-        if x == 5:
+        counter += 1
+        if counter == 5:
             embed.add_field(
                 name=f":red_circle: Red Team",
                 value=f"Total Kills: **{red_kills}**",
@@ -107,7 +105,7 @@ def generate_user_embed(user_info):
         description=f"",
         color=random.randint(0, 16777215),
     )
-    embed.set_author(name=user_info.summoner_name, icon_url=icon_url(user_info.icon))
+    embed.set_author(name=user_info.name, icon_url=icon_url(user_info.icon))
     embed.set_thumbnail(url=rank_assets[user_info.max_division.upper()])
     embed.add_field(
         name=f"Solo/Duo - {user_info.rank_solo}",
@@ -133,14 +131,14 @@ def generate_user_embed(user_info):
     return embed
 
 
-def generate_history_embed(match_history):
+def generate_history_embed(match_history, nametag):
     embed = discord.Embed(
         title=f"Last {len(match_history[0])} Games",
         description=f"",
         color=random.randint(0, 16777215),
     )
     embed.set_author(
-        name=f"{match_history[1]['name']} ({match_history[1]['summonerLevel']} lvl)",
+        name=f"{nametag} ({match_history[1]['summonerLevel']} lvl)",
         icon_url=icon_url(match_history[1]["profileIconId"]),
     )
     for i in range(len(match_history[0])):

@@ -2,6 +2,15 @@ from dataclasses import dataclass
 
 
 @dataclass
+class NameTag:
+    name: str
+    tag: str
+
+    def __str__(self):
+        return f"{self.name}#{self.tag}"
+
+
+@dataclass
 class GameInfo:
     id: int
     start_time: int
@@ -14,7 +23,8 @@ class GameInfo:
 @dataclass
 class PlayerInfo:
     id: int
-    summoner_name: str
+    puuid: str
+    name: NameTag
     kills: int
     deaths: int
     assists: int
@@ -37,7 +47,8 @@ class PlayerInfo:
 @dataclass
 class UserInfo:
     id: int
-    summoner_name: str
+    puuid: str
+    name: NameTag
     level: int
     icon: str
     rank_solo: str

@@ -20,7 +20,7 @@ def main():
 
     @bot.event
     async def on_ready():
-        # await command_tree.sync()
+        await command_tree.sync()
         log(f"Logged in as {bot.user} (ID: {bot.user.id})")
         await bot.change_presence(
             status=discord.Status.online,
@@ -65,7 +65,7 @@ def main():
         if match_info is None:
             await interaction.response.send_message(f"Match not found!")
             return
-        embed = embed_generator.generate_match_embed(match_info, summoner["name"])
+        embed = embed_generator.generate_match_embed(match_info, puuid)
         await interaction.response.send_message(embed=embed)
 
     @command_tree.command(name="profile", description="Shows profile of a player")
@@ -129,7 +129,8 @@ def main():
                 f"No match history found for summoner {name}#{tag}"
             )
             return
-        embed = embed_generator.generate_history_embed(data)
+        nametag = await riot_client.get_riot_nametag_by_puuid(puuid)
+        embed = embed_generator.generate_history_embed(data, nametag)
         await interaction.followup.send(embed=embed)
 
     @command_tree.command(name="help", description="Shows all available commands")

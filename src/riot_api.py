@@ -1,6 +1,6 @@
 import aiohttp
 import time
-from game_info import GameInfo, PlayerInfo, UserInfo
+from game_info import NameTag, GameInfo, PlayerInfo, UserInfo
 
 
 def ttl_cache(ttl=60, max_size=128):
@@ -71,7 +71,7 @@ class RiotAPI:
     def get_server_url(self, server):
         return f"https://{server}.api.riotgames.com/"
 
-    @ttl_cache(ttl=3600*24, max_size=1024)
+    @ttl_cache(ttl=3600 * 24, max_size=1024)
     async def get_riot_account_puuid(self, gameName, tagLine):
         url = f"{self.universal_api_url}riot/account/v1/accounts/by-riot-id/{gameName}/{tagLine}"
         params = {"api_key": self.api_key}
@@ -82,7 +82,18 @@ class RiotAPI:
                     return data["puuid"]
                 return None
 
-    @ttl_cache(ttl=3600*24, max_size=1024)
+    @ttl_cache(ttl=3600 * 24, max_size=1024)
+    async def get_riot_nametag_by_puuid(self, puuid):
+        url = f"{self.universal_api_url}riot/account/v1/accounts/by-puuid/{puuid}"
+        params = {"api_key": self.api_key}
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, params=params) as response:
+                data = await response.json()
+                if response.status == 200:
+                    return NameTag(data["gameName"], data["tagLine"])
+                return None
+
+    @ttl_cache(ttl=3600 * 24, max_size=1024)
     async def get_summoner_by_puuid(self, puuid, server):
         url = f"{self.get_server_url(server)}lol/summoner/v4/summoners/by-puuid/{puuid}"
         params = {"api_key": self.api_key}
@@ -106,7 +117,7 @@ class RiotAPI:
                     return data
                 return []
 
-    @ttl_cache(ttl=3600*24)
+    @ttl_cache(ttl=3600 * 24)
     async def get_raw_match_info_by_id(self, match_id):
         url = f"{self.universal_api_url}lol/match/v5/matches/{match_id}"
         params = {"api_key": self.api_key}
@@ -183,7 +194,8 @@ class RiotAPI:
         participants = []
         for participant in raw_data["info"]["participants"]:
             id = participant["summonerId"]
-            summoner_name = participant["summonerName"]
+            puuid = participant["puuid"]
+            name = await self.get_riot_nametag_by_puuid(puuid)
             kills = participant["kills"]
             deaths = participant["deaths"]
             assists = participant["assists"]
@@ -209,7 +221,8 @@ class RiotAPI:
             position = participant["individualPosition"]
             player_info = PlayerInfo(
                 id,
-                summoner_name,
+                puuid,
+                name,
                 kills,
                 deaths,
                 assists,
@@ -249,7 +262,8 @@ class RiotAPI:
         if summoner["status_code"] != 200:
             return {"status_code": 404, "message": "Summoner not found"}
         id = summoner["id"]
-        summoner_name = summoner["name"]
+        puuid = summoner["puuid"]
+        name = await self.get_riot_nametag_by_puuid(puuid)
         level = summoner["summonerLevel"]
         icon = summoner["profileIconId"]
         ranks = await self.get_ranked_info(id, server)
@@ -288,7 +302,8 @@ class RiotAPI:
             total_points += champion[2]
         user = UserInfo(
             id,
-            summoner_name,
+            puuid,
+            name,
             level,
             icon,
             rank_solo,
