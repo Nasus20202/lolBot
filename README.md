@@ -13,7 +13,7 @@ League Stats bot for Discord is a simple tool to check your last games, match hi
 ```
 DISCORD_TOKEN=YOUR_DICORD_TOKEN
 RIOT_TOKEN=YOUR_RIOT_TOKEN
-(Optional) SERVER=eun1
+(Optional) DEFAULT_SERVER=EUNE
 (Optional) REGION=europe
 ```
 
