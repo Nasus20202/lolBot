@@ -166,8 +166,7 @@ class RiotAPI:
                     level = champion["championLevel"]
                     points = champion["championPoints"]
                     last_play = champion["lastPlayTime"]
-                    chest = champion["chestGranted"]
-                    champions.append([id, level, points, last_play, chest])
+                    champions.append([id, level, points, last_play])
         return champions
 
     async def get_recent_matches_ids(self, puuid, server, count=20):
