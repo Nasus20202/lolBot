@@ -1,6 +1,8 @@
 services:
   league-bot:
     build: .
+    container_name: league-bot
+    restart: always
     environment:
       DISCORD_TOKEN: ${DISCORD_TOKEN}
       RIOT_TOKEN: ${RIOT_TOKEN}
