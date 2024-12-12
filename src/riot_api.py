@@ -57,10 +57,8 @@ class RiotAPI:
         "TR": "TR1",
         "JP": "JP1",
         "KR": "KR",
-        "PH": "PH2",
-        "SG": "SG2",
+        "SEA": "SG2",
         "TW": "TW2",
-        "TH": "TH2",
         "VN": "VN2",
     }
 
