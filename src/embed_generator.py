@@ -144,7 +144,7 @@ def generate_history_embed(match_history, nametag):
     for i in range(len(match_history[0])):
         match = match_history[0][i]
         for participant in match.participants:
-            if participant.id == match_history[1]["id"]:
+            if participant.puuid == match_history[1]["puuid"]:
                 m, s = divmod(match.duration, 60)
                 result_emoji = (
                     ":white_circle:"

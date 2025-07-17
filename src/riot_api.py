@@ -258,7 +258,6 @@ class RiotAPI:
         summoner = await self.get_summoner_by_puuid(puuid, server)
         if summoner["status_code"] != 200:
             return {"status_code": 404, "message": "Summoner not found"}
-        id = summoner["id"]
         puuid = summoner["puuid"]
         name = await self.get_riot_nametag_by_puuid(puuid)
         level = summoner["summonerLevel"]
