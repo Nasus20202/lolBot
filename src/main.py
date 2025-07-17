@@ -1,9 +1,10 @@
-import datetime
 import discord
 from dotenv import load_dotenv
 import os
 import embed_generator
 import riot_api
+
+from logger import log
 
 
 def main():
@@ -159,11 +160,6 @@ def main():
         log(
             f"Command [{command}] with options [{options}] from [{user}] in guild [{guild}], channel [{channel}]"
         )
-
-    def log(message, level="INFO"):
-        timestamp = datetime.datetime.now()
-        timestamp_str = timestamp.strftime("%Y-%m-%d %H:%M:%S")
-        print(f"{timestamp_str} {level}\t{message}")
 
     def riot_account_not_found(gameName, tagLine):
         return f"Riot Account {gameName}#{tagLine} doesn't exist!"
