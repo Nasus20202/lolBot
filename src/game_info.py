@@ -22,7 +22,6 @@ class GameInfo:
 
 @dataclass
 class PlayerInfo:
-    id: int
     puuid: str
     name: NameTag
     kills: int
@@ -46,7 +45,6 @@ class PlayerInfo:
 
 @dataclass
 class UserInfo:
-    id: int
     puuid: str
     name: NameTag
     level: int

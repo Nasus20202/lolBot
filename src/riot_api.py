@@ -129,10 +129,8 @@ class RiotAPI:
                 return data["status"]
 
     @ttl_cache()
-    async def get_ranked_info(self, user_id, server):
-        url = (
-            f"{self.get_server_url(server)}lol/league/v4/entries/by-summoner/{user_id}"
-        )
+    async def get_ranked_info(self, puuid, server):
+        url = f"{self.get_server_url(server)}lol/league/v4/entries/by-puuid/{puuid}"
         params = {"api_key": self.api_key}
         ranks = []
         async with aiohttp.ClientSession() as session:
@@ -190,7 +188,6 @@ class RiotAPI:
         winner = "Blue"
         participants = []
         for participant in raw_data["info"]["participants"]:
-            id = participant["summonerId"]
             puuid = participant["puuid"]
             name = await self.get_riot_nametag_by_puuid(puuid)
             kills = participant["kills"]
@@ -217,7 +214,6 @@ class RiotAPI:
             ]
             position = participant["individualPosition"]
             player_info = PlayerInfo(
-                id,
                 puuid,
                 name,
                 kills,
@@ -235,7 +231,7 @@ class RiotAPI:
             )
             participants.append(player_info)
         game_info = GameInfo(
-            id, start_time, game_duration, winner, participants, queue_type
+            match_id, start_time, game_duration, winner, participants, queue_type
         )
         return game_info
 
@@ -262,7 +258,7 @@ class RiotAPI:
         name = await self.get_riot_nametag_by_puuid(puuid)
         level = summoner["summonerLevel"]
         icon = summoner["profileIconId"]
-        ranks = await self.get_ranked_info(id, server)
+        ranks = await self.get_ranked_info(puuid, server)
         rank_solo = "UNRANKED"
         rank_flex = "UNRANKED"
         lp_solo = 0
@@ -297,7 +293,6 @@ class RiotAPI:
             total_mastery += champion[1]
             total_points += champion[2]
         user = UserInfo(
-            id,
             puuid,
             name,
             level,
