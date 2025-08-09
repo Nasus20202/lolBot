@@ -4,7 +4,7 @@ aiosignal==1.4.0
 attrs==25.3.0
 audioop-lts==0.2.2
 certifi==2025.8.3
-charset-normalizer==3.4.2
+charset-normalizer==3.4.3
 discord.py==2.5.2
 frozenlist==1.7.0
 idna==3.10
