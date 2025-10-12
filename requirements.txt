@@ -7,7 +7,7 @@ certifi==2025.10.5
 charset-normalizer==3.4.3
 discord.py==2.6.4
 frozenlist==1.8.0
-idna==3.10
+idna==3.11
 multidict==6.7.0
 propcache==0.4.1
 python-dotenv==1.1.1
