@@ -11,6 +11,6 @@ idna==3.14
 multidict==6.7.1
 propcache==0.5.2
 python-dotenv==1.2.2
-requests==2.33.1
+requests==2.34.0
 urllib3==2.7.0
 yarl==1.23.0
