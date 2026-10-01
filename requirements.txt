@@ -10,7 +10,7 @@ frozenlist==1.8.0
 idna==3.20
 multidict==6.9.1
 propcache==0.5.4
-python-dotenv==1.2.3
+python-dotenv==1.2.4
 requests==2.34.2
 urllib3==2.8.0
 yarl==1.25.1
